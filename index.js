@@ -1,5 +1,6 @@
 //jshint esversion:6
 
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -7,14 +8,17 @@ const _ = require("lodash");
 
 const app = express();
 
+
+const PORT = process.env.PORT || 3000;
+
+
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 async function main() {
-  const mongo_connection = "mongodb+srv://aadityasahu574:excellent8mongodb@cluster0.3r5cd7n.mongodb.net/";
-  await mongoose.connect(mongo_connection + 'todolistDB');
+  await mongoose.connect(process.env.MONGO_URI + 'todolistDB');
   const itemsSchema = new mongoose.Schema({
     name: String
   });
@@ -47,7 +51,9 @@ async function main() {
       list.save();
       res.redirect("/" + customListName);
     }
-    res.render("list", { listTitle: customListName, newListItems: foundList.items });
+    else{
+      res.render("list", { listTitle: customListName, newListItems: foundList.items });
+    }
   });
 
   app.get("/", async function (req, res) {
@@ -109,6 +115,6 @@ async function main() {
 
 main().catch(err => console.log("unsuccessful : \n" + err));
 
-app.listen(3000, function () {
-  console.log("Server started on port 3000");
+app.listen(PORT, function () {
+  console.log("Server started.");
 });
