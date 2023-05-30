@@ -18,7 +18,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 async function main() {
-  await mongoose.connect(process.env.MONGO_URI + 'todolistDB');
+  await mongoose.connect(process.env.MONGO_URI + 'todolistDB')
+    .then(() => app.listen(PORT, () => console.log("Server started.")))
+    .catch((err) => console.log("Error connecting"));
   const itemsSchema = new mongoose.Schema({
     name: String
   });
@@ -114,7 +116,3 @@ async function main() {
 }
 
 main().catch(err => console.log("unsuccessful : \n" + err));
-
-app.listen(PORT, function () {
-  console.log("Server started.");
-});
