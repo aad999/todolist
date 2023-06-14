@@ -1,30 +1,45 @@
 //jshint esversion:6
 
+// require dotenv for setting up environment variables
 require('dotenv').config();
+// require express for route management
 const express = require("express");
+// require body-parser to tap into req of post requests
 const bodyParser = require("body-parser");
+// require mongoose for interacting with mongodb in nodejs applications
+// it provides a layer of abstraction on the top of mongodb,
+// such as by providing schema validation and object-document mapping
 const mongoose = require("mongoose");
+// lodash is required for string management
 const _ = require("lodash");
 
 const app = express();
 
-
+// use port of the enviornment of the local port 3000
 const PORT = process.env.PORT || 3000;
-
 
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+// writing inside a async main function is recommended
 async function main() {
+
+  // connect to enviornment todolistDB of remote mongo server at mongo_uri
   await mongoose.connect(process.env.MONGO_URI + 'todolistDB')
     .then(() => app.listen(PORT, () => console.log("Server started.")))
     .catch((err) => console.log("Error connecting"));
+  
+  // define <name>sSchema (database)
   const itemsSchema = new mongoose.Schema({
     name: String
   });
+
+  // define <Name> model (collection)
   const Item = new mongoose.model("Item", itemsSchema);
+
+  // define <name><number> object (document)
   const item1 = new Item({
     name: "Welcome to your todolist!"
   });
@@ -62,7 +77,6 @@ async function main() {
 
     const foundItems = await Item.find()
       .catch((err) => console.log("error finding items : \n" + err));
-    // console.log(foundItems);
 
     if (foundItems.length === 0) {
       await Item.insertMany(defaultItems)
